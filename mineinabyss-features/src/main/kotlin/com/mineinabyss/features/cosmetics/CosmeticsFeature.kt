@@ -1,6 +1,7 @@
 package com.mineinabyss.features.cosmetics
 
 import com.hibiscusmc.hmccosmetics.HMCCosmeticsPlugin
+import com.hibiscusmc.hmccosmetics.api.HMCCosmeticsAPI
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticSlot
 import com.hibiscusmc.hmccosmetics.gui.Menus
 import com.hibiscusmc.hmccosmetics.gui.special.DyeMenu
@@ -12,22 +13,25 @@ import com.mineinabyss.idofront.features.Feature
 import com.mineinabyss.idofront.features.FeatureDSL
 import com.mineinabyss.idofront.messaging.error
 import com.mineinabyss.idofront.messaging.warn
-import com.mineinabyss.idofront.plugin.listeners
 import kotlinx.serialization.Serializable
 
 class CosmeticsFeature(val config: Config) : Feature() {
+
+    companion object {
+        val MIA_BACKPACK by lazy { CosmeticSlot.valueOf("MIA_BACKPACK") }
+    }
+
     @Serializable
     class Config {
         val enabled = false
         val equipWhistleCosmetic = false
-        val equipBackpacks: Boolean = false
-        val defaultBackpack: String = "backpack"
     }
 
     override val dependsOn: Set<String> = setOf("HMCCosmetics")
     override fun FeatureDSL.enable() {
-        if (config.equipBackpacks) plugin.listeners(CosmeticBackpackListener(config))
-        plugin.listeners(CosmeticWhistleListener(config))
+        HMCCosmeticsAPI.registerCosmeticSlot("MIA_BACKPACK")
+        HMCCosmeticsAPI.registerCosmeticUserProvider(MiAUserProvider())
+        HMCCosmeticsAPI.registerCosmeticProvider(MiACosmeticProvider())
         TypeMiaCosmetic()
         HMCCosmeticsPlugin.setup()
 
@@ -124,12 +128,11 @@ class CosmeticsFeature(val config: Config) : Feature() {
                 }
                 "menu" {
                     playerAction {
-                        if (hmcCosmetics.isEnabled)
-                            Menus.getDefaultMenu().openMenu(player.cosmeticUser)
+                        if (hmcCosmetics.isEnabled) Menus.getDefaultMenu()?.openMenu(player.cosmeticUser)
                     }
                 }
                 "dye" {
-                    val cosmeticSlot by optionArg(CosmeticSlot.entries.map { it.name })
+                    val cosmeticSlot by optionArg(CosmeticSlot.values().keys.toList())
                     playerAction {
                         player.cosmeticUser?.let { user ->
                             user.getCosmetic(CosmeticSlot.valueOf(cosmeticSlot))?.let { cosmetic ->
@@ -150,7 +153,7 @@ class CosmeticsFeature(val config: Config) : Feature() {
 
                 3 -> when (args[1]) {
                     //"wardrobe" -> listOf("personal", "open").filter { it.startsWith(args[2]) }
-                    "dye" -> CosmeticSlot.entries.map { it.name }.filter { it.uppercase().startsWith(args[2]) }
+                    "dye" -> CosmeticSlot.values().keys.filter { it.uppercase().startsWith(args[2]) }
                     else -> listOf()
                 }
 
