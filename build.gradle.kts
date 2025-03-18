@@ -87,6 +87,8 @@ dependencies {
 }
 
 kotlin {
+    jvmToolchain(21)
+
     compilerOptions {
         freeCompilerArgs.addAll(
             "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",

@@ -39,6 +39,3 @@ include(
     "mineinabyss-components",
     "mineinabyss-features"
 )
-
-includeBuild("../geary-papermc")
-includeBuild("../guiy-compose")

@@ -5,13 +5,16 @@ import com.mineinabyss.components.npc.orthbanking.OrthCoin
 import com.mineinabyss.components.playerData
 import com.mineinabyss.features.helpers.CoinFactory
 import com.mineinabyss.features.hubstorage.isInHub
+import com.mineinabyss.features.orthbanking.ui.BankMenu
 import com.mineinabyss.geary.papermc.tracking.items.inventory.toGeary
+import com.mineinabyss.guiy.inventory.guiy
 import com.mineinabyss.idofront.commands.arguments.intArg
 import com.mineinabyss.idofront.commands.extensions.actions.ensureSenderIsPlayer
 import com.mineinabyss.idofront.commands.extensions.actions.playerAction
 import com.mineinabyss.idofront.features.Feature
 import com.mineinabyss.idofront.features.FeatureDSL
 import com.mineinabyss.idofront.messaging.error
+import com.mineinabyss.idofront.messaging.info
 import com.mineinabyss.idofront.messaging.success
 import kotlinx.serialization.Serializable
 import org.bukkit.entity.Player
@@ -29,7 +32,7 @@ class OrthBankingFeature(val config: Config) : Feature() {
 
         mainCommand {
             "bank"(desc = "Orthbanking related commands") {
-                /*"balance"(desc = "Toggles whether or not the balance should be shown.") {
+                "balance"(desc = "Toggles whether or not the balance should be shown.") {
                     playerAction {
                         val player = sender as Player
                         player.info("Balance is now ${if (player.playerData.showPlayerBalance) "hidden" else "shown"}.")
@@ -41,7 +44,12 @@ class OrthBankingFeature(val config: Config) : Feature() {
                             false -> player.error("Balance-HUD toggled off.")
                         }
                     }
-                }*/
+                }
+                "menu" {
+                    playerAction {
+                        guiy(player) { BankMenu(player) }
+                    }
+                }
                 "deposit"(desc = "Dev command until Guiy can take items") {
                     val amount by intArg { default = 1 }
                     ensureSenderIsPlayer()
